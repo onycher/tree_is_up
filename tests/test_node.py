@@ -1,6 +1,6 @@
 import pytest
 
-from tree_is_up import Node
+from tree_is_up.node import Node
 
 
 @pytest.fixture
