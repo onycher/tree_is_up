@@ -41,7 +41,7 @@ def test_set_identifier(node1):
 def test_update_successors(node1):
     node1.update_successors("identifier 2", tree_id="tree 1")
     assert node1.successors("tree 1") == ["identifier 2"]
-    assert node1._succesors["tree 1"] == ["identifier 2"]
+    assert node1._successors["tree 1"] == ["identifier 2"]
     node1.set_successors([], tree_id="tree 1")
     assert node1._successors["tree 1"] == []
 
