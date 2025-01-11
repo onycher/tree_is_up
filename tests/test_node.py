@@ -18,7 +18,7 @@ def test_initialization(node1):
     assert node1.identifier == "identifier 1"
     assert node1.expanded is True
     assert node1._predecessor == {}
-    assert node1._successors == []
+    assert node1._successors == {}
     assert node1.data is None
 
 
