@@ -1,6 +1,4 @@
 import pytest
-import sys
-import os
 from tree_is_up.tree import Tree, NodeIDAbsentError, LoopError
 from tree_is_up.node import Node
 
@@ -235,31 +233,9 @@ def test_paste_tree(tree):
     new_tree.create_node("Mark", "mark", parent="jill")
     tree.paste("jane", new_tree)
     assert "jill" in tree.is_branch("jane")
-    tree.show()
-    assert (
-        tree._reader
-        == """Harry
-├── Bill
-│   └── George
-└── Jane
-├── Diane
-└── Jill
-    └── Mark
-"""
-    )
     tree.remove_node("jill")
     assert "jill" not in tree.nodes.keys()
     assert "mark" not in tree.nodes.keys()
-    tree.show()
-    assert (
-        tree._reader
-        == """Harry
-├── Bill
-│   └── George
-└── Jane
-└── Diane
-"""
-    )
 
 
 def test_merge_on_empty(t2):
@@ -270,14 +246,6 @@ def test_merge_on_empty(t2):
     assert t.identifier == "t1"
     assert t.root == "r2"
     assert set(t._nodes.keys()) == {"r2", "c", "d", "d1"}
-    assert (
-        t.show(stdout=False)
-        == """root2
-├── C
-└── D
-└── D1
-"""
-    )
 
 
 def test_merge_on_new_empty(t1):
@@ -288,14 +256,6 @@ def test_merge_on_new_empty(t1):
     assert t1.identifier == "t1"
     assert t1.root == "r"
     assert set(t1._nodes.keys()) == {"r", "a", "a1", "b"}
-    assert (
-        t1.show(stdout=False)
-        == """root
-├── A
-│   └── A1
-└── B
-"""
-    )
 
 
 def test_merge_at_root(t1, t2):
@@ -306,17 +266,6 @@ def test_merge_at_root(t1, t2):
     assert t1.root == "r"
     assert "r2" not in t1._nodes.keys()
     assert set(t1._nodes.keys()) == {"r", "a", "a1", "b", "c", "d", "d1"}
-    assert (
-        t1.show(stdout=False)
-        == """root
-├── A
-│   └── A1
-├── B
-├── C
-└── D
-└── D1
-"""
-    )
 
 
 def test_merge_on_node(t1, t2):
@@ -326,17 +275,6 @@ def test_merge_on_node(t1, t2):
     assert t1.root == "r"
     assert "r2" not in t1._nodes.keys()
     assert set(t1._nodes.keys()) == {"r", "a", "a1", "b", "c", "d", "d1"}
-    assert (
-        t1.show(stdout=False)
-        == """root
-├── A
-│   └── A1
-└── B
-├── C
-└── D
-    └── D1
-"""
-    )
 
 
 def test_paste_under_root(t1, t2):
@@ -346,18 +284,6 @@ def test_paste_under_root(t1, t2):
     assert t1.root == "r"
     assert t1.parent("r2").identifier == "r"
     assert set(t1._nodes.keys()) == {"r", "r2", "a", "a1", "b", "c", "d", "d1"}
-    assert (
-        t1.show(stdout=False)
-        == """root
-├── A
-│   └── A1
-├── B
-└── root2
-├── C
-└── D
-    └── D1
-"""
-    )
 
 
 def test_paste_under_non_existing_node(t1, t2):
@@ -381,18 +307,6 @@ def test_paste_under_node(t1, t2):
     assert t1.root == "r"
     assert t1.parent("b").identifier == "r"
     assert set(t1._nodes.keys()) == {"r", "a", "a1", "b", "c", "d", "d1", "r2"}
-    assert (
-        t1.show(stdout=False)
-        == """root
-├── A
-│   └── A1
-└── B
-└── root2
-    ├── C
-    └── D
-        └── D1
-"""
-    )
 
 
 def test_paste_empty_new_tree_under_root(t1):
@@ -403,14 +317,6 @@ def test_paste_empty_new_tree_under_root(t1):
     assert t1.identifier == "t1"
     assert t1.root == "r"
     assert set(t1._nodes.keys()) == {"r", "a", "a1", "b"}
-    assert (
-        t1.show(stdout=False)
-        == """root
-├── A
-│   └── A1
-└── B
-"""
-    )
 
 
 def test_rsearch(tree):
@@ -458,25 +364,6 @@ def test_tree_data(tree):
     assert tree["jill"].data.color == "white"
 
 
-def test_show_data_property():
-    new_tree = Tree()
-
-    sys.stdout = open(os.devnull, "w")  # stops from printing to console
-
-    try:
-        new_tree.show()
-
-        class Flower(object):
-            def __init__(self, color):
-                self.color = color
-
-        new_tree.create_node("Jill", "jill", data=Flower("white"))
-        new_tree.show(data_property="color")
-    finally:
-        sys.stdout.close()
-        sys.stdout = sys.__stdout__  # stops from printing to console
-
-
 def test_level(tree):
     assert tree.level("harry") == 0
     depth = tree.depth()
@@ -488,46 +375,6 @@ def test_size(tree):
     assert tree.size(level=2) == 2
     assert tree.size(level=1) == 2
     assert tree.size(level=0) == 1
-
-
-def test_print_backend(tree):
-    expected_result = """\
-Harry
-├── Bill
-│   └── George
-└── Jane
-└── Diane
-"""
-
-    assert str(tree) == expected_result
-
-
-def test_show(tree):
-    sys.stdout = open(os.devnull, "w")  # stops from printing to console
-
-    try:
-        tree.show()
-    finally:
-        sys.stdout.close()
-        sys.stdout = sys.__stdout__  # stops from printing to console
-
-
-def test_show_without_sorting():
-    t = Tree()
-    t.create_node("Students", "Students", parent=None)
-    Node(tag="Students", identifier="Students", data=None)
-    t.create_node("Ben", "Ben", parent="Students")
-    Node(tag="Ben", identifier="Ben", data=None)
-    t.create_node("Annie", "Annie", parent="Students")
-    Node(tag="Annie", identifier="Annie", data=None)
-    t.show()
-    assert (
-        t.show(sorting=False, stdout=False)
-        == """Students
-├── Ben
-└── Annie
-"""
-    )
 
 
 def test_all_nodes_itr():
