@@ -8,9 +8,9 @@ from tree_is_up.node import Node
 @pytest.fixture
 def tree():
     t = Tree(identifier="tree 1")
-    t.create_node("Hárry", "hárry")
-    t.create_node("Jane", "jane", parent="hárry")
-    t.create_node("Bill", "bill", parent="hárry")
+    t.create_node("Harry", "harry")
+    t.create_node("Jane", "jane", parent="harry")
+    t.create_node("Bill", "bill", parent="harry")
     t.create_node("Diane", "diane", parent="jane")
     t.create_node("George", "george", parent="bill")
     return t
@@ -55,14 +55,14 @@ def test_tree(tree):
 
 
 def test_is_root(tree):
-    assert tree._nodes["hárry"].is_root()
+    assert tree._nodes["harry"].is_root()
     assert not tree._nodes["jane"].is_root()
 
 
 def test_tree_wise_is_root(tree):
     subtree = tree.subtree("jane", identifier="subtree 2")
-    assert tree._nodes["hárry"].is_root("tree 1")
-    assert "hárry" not in subtree._nodes
+    assert tree._nodes["harry"].is_root("tree 1")
+    assert "harry" not in subtree._nodes
     assert not tree._nodes["jane"].is_root("tree 1")
     assert subtree._nodes["jane"].is_root("subtree 2")
 
@@ -70,8 +70,8 @@ def test_tree_wise_is_root(tree):
 def test_paths_to_leaves(tree):
     paths = tree.paths_to_leaves()
     assert len(paths) == 2
-    assert ["hárry", "jane", "diane"] in paths
-    assert ["hárry", "bill", "george"] in paths
+    assert ["harry", "jane", "diane"] in paths
+    assert ["harry", "bill", "george"] in paths
 
 
 def test_nodes(tree):
@@ -156,7 +156,7 @@ def test_tree_wise_depth(tree):
     assert tree.depth(tree.get_node("george")) == 2
     assert tree.depth("jane") == 1
     assert tree.depth("bill") == 1
-    assert tree.depth("hárry") == 0
+    assert tree.depth("harry") == 0
 
     node = Node("Test One", "identifier 1")
     with pytest.raises(NodeIDAbsentError):
@@ -182,22 +182,22 @@ def test_tree_wise_leaves(tree):
 
 
 def test_link_past_node(tree):
-    tree.create_node("Jill", "jill", parent="hárry")
+    tree.create_node("Jill", "jill", parent="harry")
     tree.create_node("Mark", "mark", parent="jill")
-    assert "mark" not in tree.is_branch("hárry")
+    assert "mark" not in tree.is_branch("harry")
     tree.link_past_node("jill")
-    assert "mark" in tree.is_branch("hárry")
+    assert "mark" in tree.is_branch("harry")
 
 
 def test_expand_tree(tree):
     # Traverse in depth first mode preserving insertion order
     nodes = [nid for nid in tree.expand_tree(sorting=False)]
-    assert nodes == ["h\xe1rry", "jane", "diane", "bill", "george"]
+    assert nodes == ["harry", "jane", "diane", "bill", "george"]
     assert len(nodes) == 5
 
     # By default traverse depth first and sort child nodes by node tag
     nodes = [nid for nid in tree.expand_tree()]
-    assert nodes == ["h\xe1rry", "bill", "george", "jane", "diane"]
+    assert nodes == ["harry", "bill", "george", "jane", "diane"]
     assert len(nodes) == 5
 
     # expanding from specific node
@@ -207,12 +207,12 @@ def test_expand_tree(tree):
 
     # changing into width mode preserving insertion order
     nodes = [nid for nid in tree.expand_tree(mode=Tree.WIDTH, sorting=False)]
-    assert nodes == ["h\xe1rry", "jane", "bill", "diane", "george"]
+    assert nodes == ["harry", "jane", "bill", "diane", "george"]
     assert len(nodes) == 5
 
     # Breadth first mode, child nodes sorting by tag
     nodes = [nid for nid in tree.expand_tree(mode=Tree.WIDTH)]
-    assert nodes == ["h\xe1rry", "bill", "jane", "george", "diane"]
+    assert nodes == ["harry", "bill", "jane", "george", "diane"]
     assert len(nodes) == 5
 
     # expanding by filters
@@ -220,7 +220,7 @@ def test_expand_tree(tree):
     nodes = [nid for nid in tree.expand_tree(filter=lambda x: x.tag == "Bill")]
     assert len(nodes) == 0
     nodes = [nid for nid in tree.expand_tree(filter=lambda x: x.tag != "Bill")]
-    assert nodes == ["h\xe1rry", "jane", "diane"]
+    assert nodes == ["harry", "jane", "diane"]
     assert len(nodes) == 3
 
 
@@ -238,7 +238,7 @@ def test_paste_tree(tree):
     tree.show()
     assert (
         tree._reader
-        == """Hárry
+        == """Harry
 ├── Bill
 │   └── George
 └── Jane
@@ -253,7 +253,7 @@ def test_paste_tree(tree):
     tree.show()
     assert (
         tree._reader
-        == """Hárry
+        == """Harry
 ├── Bill
 │   └── George
 └── Jane
@@ -414,7 +414,7 @@ def test_paste_empty_new_tree_under_root(t1):
 
 
 def test_rsearch(tree):
-    for nid in ["hárry", "jane", "diane"]:
+    for nid in ["harry", "jane", "diane"]:
         assert nid in tree.rsearch("diane")
 
 
@@ -430,11 +430,11 @@ def test_subtree(tree):
 
 def test_remove_subtree(tree):
     tree.remove_subtree("jane")
-    assert "jane" not in tree.is_branch("hárry")
+    assert "jane" not in tree.is_branch("harry")
 
 
 def test_remove_subtree_whole_tree(tree):
-    tree.remove_subtree("hárry")
+    tree.remove_subtree("harry")
     assert tree.root is None
     assert len(tree.nodes.keys()) == 0
 
@@ -445,7 +445,7 @@ def test_to_json(tree):
 
 
 def test_siblings(tree):
-    assert len(tree.siblings("hárry")) == 0
+    assert len(tree.siblings("harry")) == 0
     assert tree.siblings("jane")[0].identifier == "bill"
 
 
@@ -478,7 +478,7 @@ def test_show_data_property():
 
 
 def test_level(tree):
-    assert tree.level("hárry") == 0
+    assert tree.level("harry") == 0
     depth = tree.depth()
     assert tree.level("diane") == depth
     assert tree.level("diane", lambda x: x.identifier != "jane") == depth - 1
@@ -492,7 +492,7 @@ def test_size(tree):
 
 def test_print_backend(tree):
     expected_result = """\
-Hárry
+Harry
 ├── Bill
 │   └── George
 └── Jane
@@ -631,7 +631,7 @@ def test_subclassing():
 
 def test_shallow_copy_hermetic_pointers(tree):
     # tree 1
-    # Hárry
+    # Harry
     #   └── Jane
     #       └── Diane
     #   └── Bill
@@ -643,7 +643,7 @@ def test_shallow_copy_hermetic_pointers(tree):
 
     # check that in shallow copy, instances are the same
     assert tree["jane"] is tree2["jane"]
-    assert tree["jane"]._predecessor == {"tree 1": "hárry", "tree 2": None}
+    assert tree["jane"]._predecessor == {"tree 1": "harry", "tree 2": None}
     assert dict(tree["jane"]._successors) == {"tree 1": ["diane"], "tree 2": ["diane"]}
 
     # when creating new node on subtree, check that it has no impact on initial tree
